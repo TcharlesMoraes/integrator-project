@@ -15,13 +15,15 @@
 
             <ui:define name="conteudo">
                 <h:form enctype="multipart/form-data">
-                    <p:growl id="messages" showDetail="true" />
-
-                    <p:fileUpload value="#{file.file}" mode="simple" skinSimple="true"/>
-
-                    <br /> <br />
-
-                    <p:commandButton value="#{msgs.sub}" ajax="true" action="#{file.upload}"/>
+                    <p:growl id="messages" showDetail="true"/>
+                    <p:fileUpload fileUploadListener="#{file.upload}"
+                                  mode="advanced"
+                                  label="#{msgs.escolhe}"
+                                  update="messages"
+                                  auto="false"
+                                  sizeLimit="15000000"  
+                                  invalidSizeMessage="Tamanho do arquivo acima do permitido"
+                                  dragDropSupport="false"/>
                 </h:form>
             </ui:define>
         </ui:composition>
