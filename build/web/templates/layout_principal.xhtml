@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html">
+
+    <h:head>
+        <title><ui:insert name="tituloJanela">Titulo</ui:insert></title>
+        <h:outputStylesheet library="css" name="styles.css"/>
+    </h:head>
+
+    <h:body>   
+        <div id="cabecalho">
+            <ui:insert name="cabecalho">
+                <ui:include src="/secoes/cabecalho_geral.xhtml"/>
+            </ui:insert>
+        </div>
+
+
+        <div id="barraLateralEsquerda">
+            <ui:insert name="barraLateralEsquerda">
+                <ui:include src="/secoes/barraLateralEsquerda.xhtml"/>
+            </ui:insert>
+        </div>    
+
+        <div id="conteudo">
+            <ui:insert name="conteudo"/>
+        </div>
+
+        <div id="rodape">
+            <ui:insert name="rodape">
+                <ui:include src="/secoes/rodape.xhtml"/>
+            </ui:insert>
+        </div>
+       
+
+        <ui:debug/>
+    </h:body>
+</html>

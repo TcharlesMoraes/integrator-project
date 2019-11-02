@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cc="http://java.sun.com/jsf/composite"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <cc:interface>
+        <cc:attribute name="nomeBotao" />
+        <cc:attribute name="caminhoVideo" required="true" />
+        <cc:attribute name="alterarVideo" method-signature="void action()" />
+    </cc:interface>
+
+    <cc:implementation>
+        <h:form>
+            <h:panelGrid id="video">
+                <video controls="controls">
+                    <source  src="#{cc.attrs.caminhoVideo}"  />
+                </video>
+            </h:panelGrid>
+
+            <h:commandButton value="#{cc.attrs.nomeBotao}" action="#{cc.attrs.alterarVideo}">
+                <f:ajax execute="@this" render="video" />
+            </h:commandButton>
+
+        </h:form>
+    </cc:implementation>
+</html>
+

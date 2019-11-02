@@ -1,0 +1,43 @@
+#cabecalho {
+    background-color:black;
+    color:white;
+    text-align:center;
+    padding:5px;
+    color: #ffffff;
+    width: 100%;
+    z-index: 1000;
+    height:100px;
+}
+#barraLateralEsquerda {
+    line-height:30px;
+    background-color:#eeeeee;
+    height:600px;
+    width:120px;
+    float:left;
+    padding:5px;	      
+}
+#conteudo {
+    width:650px;
+    float:left;
+    padding:10px;	 	 
+}
+#rodape {
+    background-color:black;
+    color:white;
+    clear:both;
+    text-align:center;
+   padding:5px;
+   height:60px;
+}
+
+.naoSelecionado {
+   padding: 5px;
+   text-align: center;
+}
+
+.selecionado {
+   padding: 5px;
+   text-align: center;
+   background: #fefeef;
+   border: thin solid black;
+}
