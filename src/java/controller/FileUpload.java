@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Scanner;
 import javax.annotation.ManagedBean;
 import javax.enterprise.context.RequestScoped;
@@ -19,28 +20,55 @@ import org.primefaces.model.UploadedFile;
 public class FileUpload implements Serializable {
 
     private String caminho = "c:\\csv\\";
-    private String csv;
+    private String nomeArquivo;
+    private Date dataInsercao, dataDataset;
 
     public String submeterArquivo() {
         return "fileUpload?faces-redirect=true";
     }
-
+    
     public void upload(FileUploadEvent event) throws IOException {
         
         File file = new File(caminho + event.getFile().getFileName());
         file.createNewFile();
         copyInputStreamToFile(event.getFile().getInputstream(), file);
         
-        /*Scanner s = new Scanner(event.getFile().getInputstream());
-        String cont = "";
-
-        while (s.useDelimiter(";").hasNext()) {
-            cont += s.next() + " ";
-        }
-        s.close();
-        System.out.println(cont);*/
-
     }
+
+    public Date getDataInsercao() {
+        return dataInsercao;
+    }
+
+    public void setDataInsercao(Date dataInsercao) {
+        this.dataInsercao = dataInsercao;
+    }
+
+    public Date getDataDataset() {
+        return dataDataset;
+    }
+
+    public void setDataDataset(Date dataDataset) {
+        this.dataDataset = dataDataset;
+    }
+    
+    
+    
+    public String getCaminho() {
+        return caminho;
+    }
+
+    public void setCaminho(String caminho) {
+        this.caminho = caminho;
+    }
+
+    public String getNomeArquivo() {
+        return nomeArquivo;
+    }
+
+    public void setNomeArquivo(String nomeArquivo) {
+        this.nomeArquivo = nomeArquivo;
+    }
+    
 
     private static void copyInputStreamToFile(InputStream inputStream, File file)
             throws IOException {
