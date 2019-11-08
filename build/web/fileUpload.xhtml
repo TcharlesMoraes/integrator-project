@@ -22,16 +22,16 @@
                     <h:inputText id="dataDataset">
                         <f:convertDateTime pattern="dd/MM/yyyy"/>
                     </h:inputText><br/>
-                    <p:messages id="messages" showDetail="true"/>
+                    <p:growl id="messages" showDetail="true"/>
                     <p:fileUpload fileUploadListener="#{file.upload}"
                                   mode="advanced"
                                   label="#{msgs.escolhe}"
                                   update="messages"
-                                  auto="true"
+                                  auto="false"
                                   invalidSizeMessage="Tamanho do arquivo acima do permitido"
                                   dragDropSupport="false"
                                   /><br/>
-                    <h:commandButton value="${msgs.addData}" />
+                    <h:commandButton value="${msgs.addData}" action="#{file.submit()}" />
                 </h:form>
             </ui:define>
         </ui:composition>

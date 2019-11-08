@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.Scanner;
 import javax.annotation.ManagedBean;
 import javax.enterprise.context.RequestScoped;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.inject.Named;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
@@ -21,17 +23,23 @@ public class FileUpload implements Serializable {
 
     private String caminho = "c:\\csv\\";
     private String nomeArquivo;
-    private Date dataInsercao, dataDataset;
-
+    private Date dataInsercao = new Date();
+    private Date dataDataset;
+    private UploadedFile file;
     public String submeterArquivo() {
         return "fileUpload?faces-redirect=true";
     }
     
     public void upload(FileUploadEvent event) throws IOException {
+        this.file = event.getFile();
+        File arq = new File(caminho + event.getFile().getFileName());
+        arq.createNewFile();
+        copyInputStreamToFile(event.getFile().getInputstream(), arq, this.file);
+        FacesContext context = FacesContext.getCurrentInstance(); 
+        context.addMessage(null, new FacesMessage("O arquivo: " + 
+                event.getFile().getFileName() + 
+                " Foi enviado com sucesso"));
         
-        File file = new File(caminho + event.getFile().getFileName());
-        file.createNewFile();
-        copyInputStreamToFile(event.getFile().getInputstream(), file);
         
     }
 
@@ -69,14 +77,19 @@ public class FileUpload implements Serializable {
         this.nomeArquivo = nomeArquivo;
     }
     
-
-    private static void copyInputStreamToFile(InputStream inputStream, File file)
+    
+    public void submit(){
+        FacesContext context = FacesContext.getCurrentInstance(); 
+        context.addMessage(null, new FacesMessage("Dataset "+ nomeArquivo +" Cadastrado com sucesso"));
+    }
+    
+    private static void copyInputStreamToFile(InputStream inputStream, File file, UploadedFile arq)
             throws IOException {
 
         try (FileOutputStream outputStream = new FileOutputStream(file)) {
 
             int read;
-            byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[(int) arq.getSize()];
 
             while ((read = inputStream.read(bytes)) != -1) {
                 outputStream.write(bytes, 0, read);

@@ -3,13 +3,16 @@ package model;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Temporal;
 
 @Entity
+
 public class Dataset implements Serializable {
     
     @Id
+    @GeneratedValue
     private long id;
     private String caminho;
     private String datasetName;
