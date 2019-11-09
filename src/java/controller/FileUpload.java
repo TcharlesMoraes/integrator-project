@@ -12,20 +12,27 @@ import javax.annotation.ManagedBean;
 import javax.enterprise.context.RequestScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.inject.Named;
+import model.Dataset;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
+import services.facade.DatasetFacade;
 
 @ManagedBean
 @Named("file")
 @RequestScoped
 public class FileUpload implements Serializable {
 
+    @Inject
+    private DatasetFacade datasetFacde;
+    
     private String caminho = "c:\\csv\\";
     private String nomeArquivo;
     private Date dataInsercao = new Date();
     private Date dataDataset;
     private UploadedFile file;
+    private Dataset dataset = new Dataset();
     public String submeterArquivo() {
         return "fileUpload?faces-redirect=true";
     }
@@ -33,6 +40,7 @@ public class FileUpload implements Serializable {
     public void upload(FileUploadEvent event) throws IOException {
         this.file = event.getFile();
         File arq = new File(caminho + event.getFile().getFileName());
+        this.dataset.setCaminho(caminho+event.getFile().getFileName());
         arq.createNewFile();
         copyInputStreamToFile(event.getFile().getInputstream(), arq, this.file);
         FacesContext context = FacesContext.getCurrentInstance(); 
@@ -79,6 +87,11 @@ public class FileUpload implements Serializable {
     
     
     public void submit(){
+       
+        this.dataset.setDatasetName(nomeArquivo);
+        this.dataset.setDataDataset(dataDataset);
+        this.dataset.setAdicionadoEm(dataInsercao);
+        datasetFacde.create(dataset);
         FacesContext context = FacesContext.getCurrentInstance(); 
         context.addMessage(null, new FacesMessage("Dataset "+ nomeArquivo +" Cadastrado com sucesso"));
     }

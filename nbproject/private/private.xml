@@ -3,7 +3,16 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/luiz.weber/Documents/NetBeansProjects/integrator-project/src/java/controller/FileUpload.java</file>
+            <file>file:/C:/Users/gusta/OneDrive/Documentos/NetBeansProjects/WebApplication3/src/java/services/DatasetService.java</file>
+            <file>file:/C:/Users/gusta/OneDrive/Documentos/NetBeansProjects/WebApplication3/web/WEB-INF/glassfish-resources.xml</file>
+            <file>file:/C:/Users/gusta/OneDrive/Documentos/NetBeansProjects/WebApplication3/web/listDatasets.xhtml</file>
+            <file>file:/C:/Users/gusta/OneDrive/Documentos/NetBeansProjects/WebApplication3/src/java/controller/DatasetController.java</file>
+            <file>file:/C:/Users/gusta/OneDrive/Documentos/NetBeansProjects/WebApplication3/web/viewDataset.xhtml</file>
+            <file>file:/C:/Users/gusta/OneDrive/Documentos/NetBeansProjects/WebApplication3/src/java/model/Dataset.java</file>
+            <file>file:/C:/Users/gusta/OneDrive/Documentos/NetBeansProjects/WebApplication3/src/java/recursos/mensagens.properties</file>
+            <file>file:/C:/Users/gusta/OneDrive/Documentos/NetBeansProjects/WebApplication3/src/conf/persistence.xml</file>
+            <file>file:/C:/Users/gusta/OneDrive/Documentos/NetBeansProjects/WebApplication3/src/java/controller/FileUpload.java</file>
+            <file>file:/C:/Users/gusta/OneDrive/Documentos/NetBeansProjects/WebApplication3/web/fileUpload.xhtml</file>
         </group>
     </open-files>
 </project-private>
