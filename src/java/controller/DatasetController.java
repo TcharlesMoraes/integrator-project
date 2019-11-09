@@ -5,8 +5,10 @@ import java.util.Date;
 import java.util.List;
 import javax.annotation.ManagedBean;
 import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 import model.Dataset;
+import services.facade.DatasetFacade;
 
 @ManagedBean
 @Named("dataset")
@@ -14,12 +16,15 @@ import model.Dataset;
 public class DatasetController {
     private String caminho, datasetName;
     private Date adicionadoEm, dataDataset;
+    @Inject
+    DatasetFacade datasetFacade;
     private List<Dataset> datasets;
+    private Dataset dataset;
     public String redirect(){
         return "listDatasets?faces-redirect=true";
     }
     public List<Dataset> getDatasets(){
-        this.datasets = datasets = new ArrayList<Dataset>();
+        this.datasets = datasetFacade.findAll();
         return this.datasets;
     }
 
@@ -57,6 +62,14 @@ public class DatasetController {
 
     public void setDataDataset(Date dataDataset) {
         this.dataDataset = dataDataset;
+    }
+
+    public Dataset getDataset() {
+        return dataset;
+    }
+
+    public void setDataset(Dataset dataset) {
+        this.dataset = dataset;
     }
     
     
