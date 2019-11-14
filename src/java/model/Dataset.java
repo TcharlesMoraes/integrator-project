@@ -12,9 +12,11 @@ import javax.persistence.Temporal;
 public class Dataset implements Serializable {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    
     private String caminho;
+    
     private String datasetName;
   
     @Temporal(javax.persistence.TemporalType.DATE)

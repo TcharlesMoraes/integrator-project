@@ -1,10 +1,11 @@
 package controller;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.ManagedBean;
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.SessionScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import model.Dataset;
@@ -12,8 +13,9 @@ import services.facade.DatasetFacade;
 
 @ManagedBean
 @Named("dataset")
-@RequestScoped
-public class DatasetController {
+@SessionScoped
+public class DatasetController implements Serializable{
+    
     private String caminho, datasetName;
     private Date adicionadoEm, dataDataset;
     @Inject

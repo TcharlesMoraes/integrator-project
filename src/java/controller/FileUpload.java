@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Scanner;
 import javax.annotation.ManagedBean;
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -21,7 +21,7 @@ import services.facade.DatasetFacade;
 
 @ManagedBean
 @Named("file")
-@RequestScoped
+@SessionScoped
 public class FileUpload implements Serializable {
 
     @Inject
@@ -33,14 +33,19 @@ public class FileUpload implements Serializable {
     private Date dataDataset;
     private UploadedFile file;
     private Dataset dataset = new Dataset();
+    private String fileLocation;
+    
     public String submeterArquivo() {
         return "fileUpload?faces-redirect=true";
     }
     
+    @SuppressWarnings("RedundantStringToString")
     public void upload(FileUploadEvent event) throws IOException {
-        this.file = event.getFile();
-        File arq = new File(caminho + event.getFile().getFileName());
-        this.dataset.setCaminho(caminho+event.getFile().getFileName());
+        
+        file = event.getFile();
+        this.fileLocation = caminho + event.getFile().getFileName().toString();
+        System.out.println(fileLocation);
+        File arq = new File(caminho + event.getFile().getFileName().toString());
         arq.createNewFile();
         copyInputStreamToFile(event.getFile().getInputstream(), arq, this.file);
         FacesContext context = FacesContext.getCurrentInstance(); 
@@ -87,10 +92,10 @@ public class FileUpload implements Serializable {
     
     
     public void submit(){
-       
+        this.dataset.setCaminho(this.fileLocation);
         this.dataset.setDatasetName(nomeArquivo);
-        this.dataset.setDataDataset(dataDataset);
-        this.dataset.setAdicionadoEm(dataInsercao);
+        this.dataset.setDataDataset(getDataDataset());
+        this.dataset.setAdicionadoEm(getDataInsercao());
         datasetFacde.create(dataset);
         FacesContext context = FacesContext.getCurrentInstance(); 
         context.addMessage(null, new FacesMessage("Dataset "+ nomeArquivo +" Cadastrado com sucesso"));

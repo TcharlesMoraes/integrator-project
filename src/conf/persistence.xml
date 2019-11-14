@@ -3,7 +3,6 @@
   <persistence-unit name="prjIntegrator" transaction-type="JTA">
     <jta-data-source>jdbcPG</jta-data-source>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
-   
     <properties>
       <property name="javax.persistence.schema-generation.database.action" value="create"/>
     </properties>

@@ -19,7 +19,7 @@
                     #{msgs.nomeData}<br/>
                     <h:inputText value="#{file.nomeArquivo}"></h:inputText><br/>
                     #{msgs.dataData}<br/>
-                    <h:inputText id="dataDataset">
+                    <h:inputText id="dataDataset" value="#{file.dataDataset}">
                         <f:convertDateTime pattern="dd/MM/yyyy"/>
                     </h:inputText><br/>
                     <p:growl id="messages" showDetail="true"/>

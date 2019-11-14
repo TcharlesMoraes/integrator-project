@@ -7,6 +7,29 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core">
     <h:head>
         <title>Facelet Title</title>
+        <style type="text/css">
+            .value {
+                font-weight: bold;
+            }
+
+            .ui-datatable {
+                margin-bottom: 25px
+            }
+
+            .ui-datatable .ui-datatable-footer {
+                text-align:left;
+            }
+
+            .ui-datalist ul {
+                padding: 0 0 0 10px;
+                margin: 5px 0;
+            }
+
+            .ui-datatable .ui-button-icon-only .ui-button-text {
+                padding: 0;
+                line-height: 1.2;
+            }
+        </style>
     </h:head>
     <h:body>
         <ui:composition template="/templates/layout_principal.xhtml">
@@ -23,18 +46,25 @@
                         <h:outputText value="#{dt.id}" />
                     </p:column>
                     <p:column headerText="Data de Atualização">
-                        <h:outputText value="#{dt.dataDataset}" />
+                        <h:outputText value="#{dt.dataDataset}">
+                            <f:convertDateTime pattern="dd/MM/yyyy"/>
+                        </h:outputText>
                     </p:column>
                     <p:column headerText="Adicionado Em">
-                        <h:outputText value="#{dt.adicionadoEm}" />
+                        <h:outputText value="#{dt.adicionadoEm}">
+                            <f:convertDateTime pattern="dd/MM/yyyy"/>
+                        </h:outputText>
                     </p:column>
                     <p:column headerText="Caminho">
                         <h:outputText value="#{dt.caminho}" />
                     </p:column>
-                    <p:column style="width:32px;text-align: center">
-                        <!--<p:commandButton update="" oncomplete="PF('carDialog').show()" icon="pi pi-search" title="View">
-                            <f:setPropertyActionListener value="#{car}" target="#{dtSelectionView.selectedCar}" />
-                        </p:commandButton>-->
+                    <p:column headerText="Nome Dataset">
+                        <h:outputText value="#{dt.datasetName}" />
+                    </p:column>
+                    <p:column style="width:40px;text-align: center" headerText="Ações">
+                        <p:commandButton update="" oncomplete="PF('carDialog').show()" icon="pi pi-search" title="View">
+                            <f:setPropertyActionListener value="#{dt}" target="#{dt.selectedDataset}" />
+                        </p:commandButton>
                     </p:column>
                 </p:dataTable>
             </ui:define>
