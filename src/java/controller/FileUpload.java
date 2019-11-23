@@ -1,13 +1,19 @@
 package controller;
 
+import com.opencsv.CSVReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.Reader;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.util.Date;
-import java.util.Scanner;
+import java.util.Iterator;
+import java.util.regex.Pattern;
 import javax.annotation.ManagedBean;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
@@ -34,6 +40,9 @@ public class FileUpload implements Serializable {
     private UploadedFile file;
     private Dataset dataset = new Dataset();
     private String fileLocation;
+    
+    private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
+    private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
     
     public String submeterArquivo() {
         return "fileUpload?faces-redirect=true";
@@ -92,6 +101,8 @@ public class FileUpload implements Serializable {
     
     
     public void submit(){
+        
+        this.processFile(nomeArquivo, this.fileLocation);
         this.dataset.setCaminho(this.fileLocation);
         this.dataset.setDatasetName(nomeArquivo);
         this.dataset.setDataDataset(getDataDataset());
@@ -116,6 +127,57 @@ public class FileUpload implements Serializable {
             System.out.println(e.getMessage());
         }
 
+    }
+  
+    private static String makeSlug(String input) {
+        
+        if (input == null)
+            throw new IllegalArgumentException();
+
+        String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
+        String normalized = Normalizer.normalize(nowhitespace, Form.NFD);
+        String slug = NONLATIN.matcher(normalized).replaceAll("");
+        return slug.toLowerCase();
+    }
+    
+    private void processFile(String datasetName, String fileLocation) {
+        try {
+
+            String tableName = makeSlug(datasetName);
+
+            Reader reader;
+            reader = Files.newBufferedReader(Paths.get(fileLocation));
+            CSVReader csvReader = new CSVReader(reader);
+
+            String[] columns = csvReader.readNext();
+            String ddlSql = "CREATE TABLE " + tableName + "(";
+            for (int i = 0; i < columns.length; i++) {
+                
+                ddlSql += columns[i];
+                if (i + 1 < columns.length)
+                    ddlSql += ",";
+            }
+            
+            for (Iterator<String[]> rowIterator = csvReader.iterator(); rowIterator.hasNext();) {
+                
+                String insertSql = "INSERT INTO " + tableName + " VALUES (";
+                String[] row = rowIterator.next();
+                for (int i = 0; i < row.length; i++) {
+                    
+                    insertSql += row[i];
+                    if (i + 1 < row.length)
+                        insertSql += ",";
+                }
+                insertSql += ")";
+                
+                System.out.println(insertSql);
+            }
+            
+            csvReader.close();	    
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
 }
