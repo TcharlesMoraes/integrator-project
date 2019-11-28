@@ -1,6 +1,7 @@
 package controller;
 
 import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,9 +13,10 @@ import java.nio.file.Paths;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.regex.Pattern;
-import javax.annotation.ManagedBean;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -25,7 +27,6 @@ import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import services.facade.DatasetFacade;
 
-@ManagedBean
 @Named("file")
 @SessionScoped
 public class FileUpload implements Serializable {
@@ -149,14 +150,30 @@ public class FileUpload implements Serializable {
             reader = Files.newBufferedReader(Paths.get(fileLocation));
             CSVReader csvReader = new CSVReader(reader);
 
+            Map<Integer, String> typeMap = new HashMap();
+            
             String[] columns = csvReader.readNext();
+            String[] firstData = csvReader.readNext();
             String ddlSql = "CREATE TABLE " + tableName + "(";
             for (int i = 0; i < columns.length; i++) {
                 
-                ddlSql += columns[i];
-                if (i + 1 < columns.length)
+                if (isNumericType(firstData[i])) {
+                
+                    ddlSql += String.format("\"%s\" number DEFAULT NULL", columns[i]);
+                    typeMap.put(i, "numeric");
+                }
+                else {
+                    
+                    ddlSql += String.format("\"%s\" varchar(300) DEFAULT NULL", columns[i]);
+                    typeMap.put(i, "strign");
+                }
+                
+                if (i + 1 < columns.length) {
                     ddlSql += ",";
+                }
+                
             }
+            System.out.println(ddlSql);
             
             for (Iterator<String[]> rowIterator = csvReader.iterator(); rowIterator.hasNext();) {
                 
@@ -164,20 +181,30 @@ public class FileUpload implements Serializable {
                 String[] row = rowIterator.next();
                 for (int i = 0; i < row.length; i++) {
                     
-                    insertSql += row[i];
-                    if (i + 1 < row.length)
+                    switch(typeMap.get(i)) {
+                        case "string":
+                            insertSql += String.format("'%s'", row[i]);
+                            break;
+                        default:
+                            insertSql += row[i];
+                    }
+                    if (i + 1 < row.length) {
                         insertSql += ",";
+                    }
                 }
-                insertSql += ")";
+                insertSql += ");";
                 
                 System.out.println(insertSql);
             }
             
             csvReader.close();	    
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
+        } catch (CsvValidationException | IOException e) {
             e.printStackTrace();
         }
     }
 
+    private boolean isNumericType(String string) {
+        
+        return string.matches("\\d+(\\.\\d+)?");
+    }
 }

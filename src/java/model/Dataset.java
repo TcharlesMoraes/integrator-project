@@ -77,6 +77,4 @@ public class Dataset implements Serializable {
     public void setDataDataset(Date dataDataset) {
         this.dataDataset = dataDataset;
     }
-    
-    
 }
