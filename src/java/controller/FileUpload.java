@@ -22,6 +22,8 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import model.Dataset;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
@@ -34,6 +36,9 @@ public class FileUpload implements Serializable {
     @Inject
     private DatasetFacade datasetFacde;
     
+    @PersistenceContext(unitName = "prjIntegrator")
+    private EntityManager em;
+    
     private String caminho = "c:\\csv\\";
     private String nomeArquivo;
     private Date dataInsercao = new Date();
@@ -44,8 +49,11 @@ public class FileUpload implements Serializable {
     
     private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
     private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
+    private static final Pattern DATE = Pattern.compile("^\\d{2}/\\d{2}/\\d{4}$");
+    private static final Pattern INT = Pattern.compile("\\d+(\\.\\d+)?");
     
     public String submeterArquivo() {
+        System.out.print("teste");
         return "fileUpload?faces-redirect=true";
     }
     
@@ -61,9 +69,7 @@ public class FileUpload implements Serializable {
         FacesContext context = FacesContext.getCurrentInstance(); 
         context.addMessage(null, new FacesMessage("O arquivo: " + 
                 event.getFile().getFileName() + 
-                " Foi enviado com sucesso"));
-        
-        
+                " Foi enviado com sucesso"));  
     }
 
     public Date getDataInsercao() {
@@ -81,8 +87,6 @@ public class FileUpload implements Serializable {
     public void setDataDataset(Date dataDataset) {
         this.dataDataset = dataDataset;
     }
-    
-    
     
     public String getCaminho() {
         return caminho;
@@ -162,6 +166,11 @@ public class FileUpload implements Serializable {
                     ddlSql += String.format("\"%s\" number DEFAULT NULL", columns[i]);
                     typeMap.put(i, "numeric");
                 }
+                else if (isDateType(firstData[i])) {
+                    
+                    ddlSql += String.format("\"%s\" DATE DEFAULT NULL", columns[i]);
+                    typeMap.put(i, "date");
+                }
                 else {
                     
                     ddlSql += String.format("\"%s\" varchar(300) DEFAULT NULL", columns[i]);
@@ -170,9 +179,11 @@ public class FileUpload implements Serializable {
                 
                 if (i + 1 < columns.length) {
                     ddlSql += ",";
-                }
-                
+                }   
             }
+            ddlSql += ");";
+            
+            em.createNativeQuery(ddlSql).executeUpdate();
             System.out.println(ddlSql);
             
             for (Iterator<String[]> rowIterator = csvReader.iterator(); rowIterator.hasNext();) {
@@ -183,6 +194,7 @@ public class FileUpload implements Serializable {
                     
                     switch(typeMap.get(i)) {
                         case "string":
+                        case "date":
                             insertSql += String.format("'%s'", row[i]);
                             break;
                         default:
@@ -194,6 +206,7 @@ public class FileUpload implements Serializable {
                 }
                 insertSql += ");";
                 
+                em.createNativeQuery(insertSql).executeUpdate();
                 System.out.println(insertSql);
             }
             
@@ -205,6 +218,11 @@ public class FileUpload implements Serializable {
 
     private boolean isNumericType(String string) {
         
-        return string.matches("\\d+(\\.\\d+)?");
+        return string.matches(FileUpload.INT.toString());
+    }
+    
+    private boolean isDateType(String string) {
+        
+        return string.matches(FileUpload.DATE.toString());
     }
 }

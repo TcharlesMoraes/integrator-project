@@ -10,7 +10,6 @@ import javax.inject.Named;
 import model.Dataset;
 import services.facade.DatasetFacade;
 
-@ManagedBean
 @Named("dataset")
 @SessionScoped
 public class DatasetController implements Serializable{
@@ -71,7 +70,5 @@ public class DatasetController implements Serializable{
 
     public void setDataset(Dataset dataset) {
         this.dataset = dataset;
-    }
-    
-    
+    }    
 }
