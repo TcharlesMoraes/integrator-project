@@ -1,7 +1,6 @@
 package controller;
 
 import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,6 +9,8 @@ import java.io.Reader;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.Date;
@@ -23,22 +24,26 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Persistence;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceUnit;
 import model.Dataset;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import services.facade.DatasetFacade;
+import services.facade.ConnexaoFactory;
 
 @Named("file")
 @SessionScoped
 public class FileUpload implements Serializable {
 
+    /*@PersistenceContext(unitName = "prjIntegrator")
+    private EntityManager em;*/
     @Inject
     private DatasetFacade datasetFacde;
-    
-    @PersistenceContext(unitName = "prjIntegrator")
-    private EntityManager em;
-    
+
     private String caminho = "c:\\csv\\";
     private String nomeArquivo;
     private Date dataInsercao = new Date();
@@ -46,30 +51,29 @@ public class FileUpload implements Serializable {
     private UploadedFile file;
     private Dataset dataset = new Dataset();
     private String fileLocation;
-    
+
     private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
     private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
     private static final Pattern DATE = Pattern.compile("^\\d{2}/\\d{2}/\\d{4}$");
     private static final Pattern INT = Pattern.compile("\\d+(\\.\\d+)?");
-    
+
     public String submeterArquivo() {
-        System.out.print("teste");
         return "fileUpload?faces-redirect=true";
     }
-    
+
     @SuppressWarnings("RedundantStringToString")
     public void upload(FileUploadEvent event) throws IOException {
-        
+
         file = event.getFile();
         this.fileLocation = caminho + event.getFile().getFileName().toString();
         System.out.println(fileLocation);
         File arq = new File(caminho + event.getFile().getFileName().toString());
         arq.createNewFile();
         copyInputStreamToFile(event.getFile().getInputstream(), arq, this.file);
-        FacesContext context = FacesContext.getCurrentInstance(); 
-        context.addMessage(null, new FacesMessage("O arquivo: " + 
-                event.getFile().getFileName() + 
-                " Foi enviado com sucesso"));  
+        FacesContext context = FacesContext.getCurrentInstance();
+        context.addMessage(null, new FacesMessage("O arquivo: "
+                + event.getFile().getFileName()
+                + " Foi enviado com sucesso"));
     }
 
     public Date getDataInsercao() {
@@ -87,7 +91,7 @@ public class FileUpload implements Serializable {
     public void setDataDataset(Date dataDataset) {
         this.dataDataset = dataDataset;
     }
-    
+
     public String getCaminho() {
         return caminho;
     }
@@ -103,20 +107,20 @@ public class FileUpload implements Serializable {
     public void setNomeArquivo(String nomeArquivo) {
         this.nomeArquivo = nomeArquivo;
     }
-    
-    
-    public void submit(){
-        
+
+    public String submit() {
         this.processFile(nomeArquivo, this.fileLocation);
         this.dataset.setCaminho(this.fileLocation);
         this.dataset.setDatasetName(nomeArquivo);
         this.dataset.setDataDataset(getDataDataset());
         this.dataset.setAdicionadoEm(getDataInsercao());
         datasetFacde.create(dataset);
-        FacesContext context = FacesContext.getCurrentInstance(); 
-        context.addMessage(null, new FacesMessage("Dataset "+ nomeArquivo +" Cadastrado com sucesso"));
+        dataset = new Dataset();
+        FacesContext context = FacesContext.getCurrentInstance();
+        context.addMessage(null, new FacesMessage("Dataset " + nomeArquivo + " Cadastrado com sucesso"));
+        return "listDatasets?faces-redirect=true";
     }
-    
+
     private static void copyInputStreamToFile(InputStream inputStream, File file, UploadedFile arq)
             throws IOException {
 
@@ -128,23 +132,24 @@ public class FileUpload implements Serializable {
             while ((read = inputStream.read(bytes)) != -1) {
                 outputStream.write(bytes, 0, read);
             }
-        }catch(IOException e){
+        } catch (IOException e) {
             System.out.println(e.getMessage());
         }
 
     }
-  
-    private static String makeSlug(String input) {
-        
-        if (input == null)
-            throw new IllegalArgumentException();
 
-        String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
+    private static String makeSlug(String input) {
+
+        if (input == null) {
+            throw new IllegalArgumentException();
+        }
+
+        String nowhitespace = WHITESPACE.matcher(input).replaceAll("_");
         String normalized = Normalizer.normalize(nowhitespace, Form.NFD);
         String slug = NONLATIN.matcher(normalized).replaceAll("");
         return slug.toLowerCase();
     }
-    
+
     private void processFile(String datasetName, String fileLocation) {
         try {
 
@@ -155,44 +160,43 @@ public class FileUpload implements Serializable {
             CSVReader csvReader = new CSVReader(reader);
 
             Map<Integer, String> typeMap = new HashMap();
-            
+
             String[] columns = csvReader.readNext();
             String[] firstData = csvReader.readNext();
             String ddlSql = "CREATE TABLE " + tableName + "(";
             for (int i = 0; i < columns.length; i++) {
-                
+
                 if (isNumericType(firstData[i])) {
-                
-                    ddlSql += String.format("\"%s\" number DEFAULT NULL", columns[i]);
+
+                    ddlSql += String.format("\"%s\" numeric DEFAULT NULL", columns[i]);
                     typeMap.put(i, "numeric");
-                }
-                else if (isDateType(firstData[i])) {
-                    
+                } else if (isDateType(firstData[i])) {
+
                     ddlSql += String.format("\"%s\" DATE DEFAULT NULL", columns[i]);
                     typeMap.put(i, "date");
-                }
-                else {
-                    
+                } else {
+
                     ddlSql += String.format("\"%s\" varchar(300) DEFAULT NULL", columns[i]);
-                    typeMap.put(i, "strign");
+                    typeMap.put(i, "string");
                 }
-                
+
                 if (i + 1 < columns.length) {
                     ddlSql += ",";
-                }   
+                }
             }
             ddlSql += ");";
-            
-            em.createNativeQuery(ddlSql).executeUpdate();
-            System.out.println(ddlSql);
-            
+
+            createTable(ddlSql);
+
+            String insertSql = "";// = "INSERT INTO " + tableName + " VALUES (";
+            int k = 0;
             for (Iterator<String[]> rowIterator = csvReader.iterator(); rowIterator.hasNext();) {
-                
-                String insertSql = "INSERT INTO " + tableName + " VALUES (";
+
+                insertSql += "INSERT INTO " + tableName + " VALUES (";
                 String[] row = rowIterator.next();
                 for (int i = 0; i < row.length; i++) {
-                    
-                    switch(typeMap.get(i)) {
+
+                    switch (typeMap.get(i)) {
                         case "string":
                         case "date":
                             insertSql += String.format("'%s'", row[i]);
@@ -204,25 +208,57 @@ public class FileUpload implements Serializable {
                         insertSql += ",";
                     }
                 }
-                insertSql += ");";
-                
-                em.createNativeQuery(insertSql).executeUpdate();
-                System.out.println(insertSql);
+                insertSql += ");\n";
+                if (k % 1000 == 0) {
+                    insert(insertSql);
+                    insertSql = "";
+                }
+                k++;
+
             }
-            
-            csvReader.close();	    
-        } catch (CsvValidationException | IOException e) {
+            //insert(insertSql);
+            csvReader.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private boolean isNumericType(String string) {
-        
-        return string.matches(FileUpload.INT.toString());
+    private void insert(String insert) {
+        Connection conn;
+        PreparedStatement ps;
+        try {
+            conn = ConnexaoFactory.getConnection();
+            ps = conn.prepareStatement(insert);
+            ps.executeUpdate();
+            conn.close();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
     }
-    
+
+    private void createTable(String create) {
+        Connection conn;
+        PreparedStatement ps;
+        try {
+            System.out.println(create);
+            conn = ConnexaoFactory.getConnection();
+            ps = conn.prepareStatement(create);
+            ps.executeUpdate();
+            conn.close();
+        } catch (Exception e) {
+            System.err.println(e);
+        }
+
+    }
+
+    private boolean isNumericType(String string) {
+        return string.matches(FileUpload.INT.toString());
+
+    }
+
     private boolean isDateType(String string) {
-        
+
         return string.matches(FileUpload.DATE.toString());
     }
 }

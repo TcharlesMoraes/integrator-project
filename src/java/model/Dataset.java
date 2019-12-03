@@ -34,6 +34,9 @@ public class Dataset implements Serializable {
 
     public Dataset() {
     }
+    
+    
+    
 
     public long getId() {
         return id;
@@ -74,4 +77,6 @@ public class Dataset implements Serializable {
     public void setDataDataset(Date dataDataset) {
         this.dataDataset = dataDataset;
     }
+    
+    
 }

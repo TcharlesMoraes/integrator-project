@@ -38,7 +38,7 @@
             </ui:define>
 
             <ui:define name="conteudo">
-                <p:dataTable id="dts" var="dt" value="#{dataset.datasets}">
+                <p:dataTable id="dts" var="dt" value="#{dataset.datasets}" style="width: 1150px">
                     <f:facet name="header">
                         Listagem de datasets
                     </f:facet>
@@ -61,10 +61,9 @@
                     <p:column headerText="Nome Dataset">
                         <h:outputText value="#{dt.datasetName}" />
                     </p:column>
-                    <p:column style="width:40px;text-align: center" headerText="Ações">
-                        <p:commandButton update="" oncomplete="PF('carDialog').show()" icon="pi pi-search" title="View">
-                            <f:setPropertyActionListener value="#{dt}" target="#{dt.selectedDataset}" />
-                        </p:commandButton>
+                    <p:column style="width:240px;text-align: center" headerText="Ações">
+                        <p:commandButton action="#{dataset.viewDataset(dt)}" title="View"/>
+                        <p:commandButton action="#{dataset.delete(dt)}" title="Excluir"/>
                     </p:column>
                 </p:dataTable>
             </ui:define>

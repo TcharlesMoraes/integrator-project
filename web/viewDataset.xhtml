@@ -15,16 +15,63 @@
             </ui:define>
 
             <ui:define name="conteudo">
-                <h:form id="form">    
-                    <p:dataTable id="cars" var="dt" value="#{dtColumnsView.cars}" widgetVar="carsTable" filteredValue="#{dtColumnsView.filteredCars}">                    
-                        <p:columns value="#{dtColumnsView.columns}" var="column" columnIndexVar="colIndex" sortBy="#{car[column.property]}" filterBy="#{car[column.property]}">
-                            <f:facet name="header">
-                                <h:outputText value="#{column.header}" />
-                            </f:facet>
-                            <h:outputText value="#{car[column.property]}" />
-                        </p:columns>
-                    </p:dataTable>
+                <p:messages/>
+                <h:form>
+                    
+                    <h:panelGrid columns="2" cellpadding="5">
+                        <h:outputLabel for="sum" value="Somar:" />
+                        <p:selectOneMenu id="sum" value="#{dataset.soma}"
+                                              filter="true" filterMatchMode="startsWith" panelStyle="width:350px">
+                            <f:selectItem itemLabel="Selecione Um Valor"/>
+                            <f:selectItems value="#{dataset.numbers}" var="s" itemLabel="#{s}" itemValue="#{s}"/>
+                        </p:selectOneMenu>
+                        <h:outputLabel for="mean" value="Média: " />
+                        <p:selectOneMenu id="mean" value="#{dataset.media}"
+                                              filter="true" filterMatchMode="startsWith" panelStyle="width:350px">
+                            <f:selectItem itemLabel="Selecione Um Valor"/>
+                            <f:selectItems value="#{dataset.numbers}" var="m" itemLabel="#{m}" itemValue="#{m}"/>
+                        </p:selectOneMenu>
+                        <h:outputLabel for="group" value="Group By: " />
+                        <p:selectOneMenu id="group" value="#{dataset.group}"
+                                              filter="true" filterMatchMode="startsWith" panelStyle="width:350px">
+                            <f:selectItem itemLabel="Selecione Um Valor"/>
+                            <f:selectItems value="#{dataset.strings}" var="str" itemLabel="#{str}" itemValue="#{str}"/>
+                        </p:selectOneMenu>
+                    </h:panelGrid>
+                    <h:panelGrid columns="6" cellpadding="5">
+                        <h:outputLabel for="betwen" value="Entre:" />
+                        <p:selectOneMenu id="betwen" value="#{dataset.date}"
+                                              filter="true" filterMatchMode="startsWith" panelStyle="width:350px">
+                            <f:selectItem itemLabel="Selecione Um Valor"/>
+                            <f:selectItems value="#{dataset.dates}" var="da" itemLabel="#{da}" itemValue="#{da}"/>
+                        </p:selectOneMenu>
+                        <h:outputText value="Entre: " />
+                        <p:inputText id="inicioData" value="#{dataset.dataInicio}">
+                            <f:convertDateTime pattern="yyyy-MM-dd"  timeZone="GMT-3"/>
+                        </p:inputText>
+                        <h:outputText value="E "/>
+                        <p:inputText id="fimData" value="#{dataset.dataFim}">
+                            <f:convertDateTime pattern="yyyy-MM-dd"  timeZone="GMT-3"/>
+                        </p:inputText>
+                    </h:panelGrid>
+                    <p:commandButton value="Submit"
+                                     action="#{dataset.updateTable}"
+                                     update="idTabela"
+                                     style="margin-top:10px; margin-bottom: 50px;"/>
                 </h:form>
+
+
+                <p:dataTable id="idTabela" var="registro" value="#{dataset.dadosTabela}" style="width: 1180px">
+
+                    <p:columns value="#{dataset.cabecalhos}" var="column"
+                               columnIndexVar="colIndex">
+                        <f:facet name="header">
+                            #{column}
+                        </f:facet>
+                        <h:outputText value="#{registro[colIndex]}" />
+                    </p:columns>
+
+                </p:dataTable>
             </ui:define>
         </ui:composition>
     </h:body>
